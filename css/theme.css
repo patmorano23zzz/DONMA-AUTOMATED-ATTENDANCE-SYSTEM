@@ -1,0 +1,348 @@
+/*
+ * DONMA ATS — Green & Gold Theme Override
+ * Loaded after style.css to override CoreUI's default blue/purple palette
+ * with the school's green (#1a6b3a) and gold (#c9a227) colors.
+ */
+
+/* ── Light theme overrides ─────────────────────────────────────────────── */
+:root,
+[data-coreui-theme=light] {
+  /* Primary → school green */
+  --cui-primary:              #1a6b3a;
+  --cui-primary-rgb:          26, 107, 58;
+  --cui-primary-text-emphasis:#0f5722;
+  --cui-primary-bg-subtle:    #d4edda;
+  --cui-primary-border-subtle:#9dd9b0;
+  --cui-primary-contrast:     #fff;
+
+  /* Sidebar */
+  --cui-sidebar-bg:           #0d3320;
+  --cui-sidebar-color:        rgba(255,255,255,.85);
+  --cui-sidebar-nav-link-hover-bg: rgba(201,162,39,.15);
+  --cui-sidebar-nav-link-active-bg: rgba(201,162,39,.2);
+  --cui-sidebar-nav-link-active-color: #f0c040;
+  --cui-sidebar-nav-title-color: rgba(255,255,255,.45);
+  --cui-sidebar-brand-color:  #fff;
+
+  /* Header */
+  --cui-header-bg:            #fff;
+  --cui-header-border-color:  #d4e0c8;
+
+  /* Body */
+  --cui-body-bg:              #f5f7f0;
+  --cui-body-color:           #1a2e1a;
+  --cui-secondary-bg:         #eef2e6;
+  --cui-tertiary-bg:          #e4ece0;
+  --cui-border-color:         #d4e0c8;
+
+  /* Links */
+  --cui-link-color:           #1a6b3a;
+  --cui-link-hover-color:     #145530;
+
+  /* Focus ring */
+  --cui-focus-ring-color:     rgba(26,107,58,.25);
+}
+
+/* ── Dark theme overrides ──────────────────────────────────────────────── */
+[data-coreui-theme=dark] {
+  --cui-primary:              #4caf78;
+  --cui-primary-rgb:          76, 175, 120;
+  --cui-primary-text-emphasis:#81c995;
+  --cui-primary-bg-subtle:    #1a3d22;
+  --cui-primary-border-subtle:#2d6b40;
+  --cui-primary-contrast:     #080a0c;
+
+  --cui-sidebar-bg:           #051209;
+  --cui-sidebar-color:        rgba(232,245,233,.85);
+  --cui-sidebar-nav-link-hover-bg: rgba(240,192,64,.12);
+  --cui-sidebar-nav-link-active-bg: rgba(240,192,64,.18);
+  --cui-sidebar-nav-link-active-color: #f0c040;
+  --cui-sidebar-nav-title-color: rgba(232,245,233,.4);
+  --cui-sidebar-brand-color:  #e8f5e9;
+
+  --cui-header-bg:            #0a1f0f;
+  --cui-header-border-color:  #1e4a24;
+
+  --cui-body-bg:              #0a1f0f;
+  --cui-body-color:           #e8f5e9;
+  --cui-secondary-bg:         #0f2915;
+  --cui-tertiary-bg:          #132b18;
+  --cui-border-color:         #1e4a24;
+
+  --cui-link-color:           #66bb6a;
+  --cui-link-hover-color:     #81c995;
+
+  --cui-focus-ring-color:     rgba(76,175,120,.25);
+}
+
+/* ── Sidebar branding ──────────────────────────────────────────────────── */
+.sidebar {
+  background: var(--cui-sidebar-bg) !important;
+}
+.sidebar-brand {
+  border-bottom: 1px solid rgba(201,162,39,.2) !important;
+}
+.sidebar-brand-full .fw-bold {
+  color: #fff !important;
+}
+.sidebar-nav .nav-title {
+  color: rgba(255,255,255,.4) !important;
+  font-size: .65rem !important;
+  letter-spacing: .08em !important;
+}
+.sidebar-nav .nav-link {
+  color: rgba(255,255,255,.78) !important;
+  border-radius: 8px !important;
+  margin: 1px 8px !important;
+  transition: background .2s, color .2s !important;
+}
+.sidebar-nav .nav-link:hover {
+  background: rgba(201,162,39,.15) !important;
+  color: #f0c040 !important;
+}
+.sidebar-nav .nav-link.active {
+  background: rgba(201,162,39,.2) !important;
+  color: #f0c040 !important;
+}
+.sidebar-nav .nav-icon {
+  color: currentColor !important;
+  opacity: .7;
+}
+.sidebar-nav .nav-link.active .nav-icon { opacity: 1; }
+
+/* Badge in sidebar */
+.sidebar-nav .badge.bg-warning { background: var(--cui-gold, #c9a227) !important; }
+.sidebar-nav .badge.bg-info    { background: #1a6b3a !important; }
+
+/* ── Header / topbar ────────────────────────────────────────────────────── */
+.header {
+  background: var(--cui-header-bg) !important;
+  border-bottom-color: var(--cui-header-border-color) !important;
+}
+
+/* ── Buttons — primary → green, accent → gold ───────────────────────────── */
+.btn-primary {
+  --cui-btn-bg:           #1a6b3a;
+  --cui-btn-border-color: #1a6b3a;
+  --cui-btn-hover-bg:     #145530;
+  --cui-btn-hover-border-color: #145530;
+  --cui-btn-active-bg:    #0f4225;
+  --cui-btn-color:        #fff;
+}
+.btn-outline-primary {
+  --cui-btn-color:              #1a6b3a;
+  --cui-btn-border-color:       #1a6b3a;
+  --cui-btn-hover-bg:           #1a6b3a;
+  --cui-btn-hover-border-color: #1a6b3a;
+  --cui-btn-hover-color:        #fff;
+  --cui-btn-active-bg:          #145530;
+}
+
+/* Gold / warning accent */
+.btn-warning {
+  --cui-btn-bg:           #c9a227;
+  --cui-btn-border-color: #c9a227;
+  --cui-btn-hover-bg:     #a8841f;
+  --cui-btn-color:        #1a2e1a;
+  --cui-btn-hover-color:  #1a2e1a;
+}
+
+/* ── Cards ──────────────────────────────────────────────────────────────── */
+.card {
+  border-color: var(--cui-border-color) !important;
+}
+.card-header {
+  border-bottom-color: var(--cui-border-color) !important;
+}
+
+/* Stat cards — keep vivid colors, just adjust primary */
+.card.bg-primary {
+  background: #1a6b3a !important;
+  border-color: #1a6b3a !important;
+}
+
+/* ── Breadcrumb ──────────────────────────────────────────────────────────── */
+.breadcrumb-item a { color: var(--cui-link-color); }
+.breadcrumb-item.active { color: var(--cui-muted, #6b7f6b); }
+
+/* ── Tables ──────────────────────────────────────────────────────────────── */
+.table-light th { background: var(--cui-tertiary-bg) !important; }
+
+/* ── Badges ──────────────────────────────────────────────────────────────── */
+.badge.bg-primary { background-color: #1a6b3a !important; }
+
+/* ── Progress bars ────────────────────────────────────────────────────────── */
+.progress-bar.bg-success { background-color: #1a6b3a !important; }
+
+/* ── Focus rings ─────────────────────────────────────────────────────────── */
+.form-control:focus,
+.form-select:focus {
+  border-color: #1a6b3a !important;
+  box-shadow: 0 0 0 .25rem rgba(26,107,58,.18) !important;
+}
+
+/* ── Scrollbar (webkit) ───────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(26,107,58,.35); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(26,107,58,.6); }
+
+
+/* ═══════════════════════════════════════════════
+   DONMA ATS — Extended Dashboard Styling
+   Green (#1a6b3a) + Gold (#c9a227) palette
+   ═══════════════════════════════════════════════ */
+
+/* ── Page wrapper background ─────────────────── */
+body.bg-body-tertiary { background: var(--cui-body-bg) !important; }
+
+/* ── Sidebar deeper styling ───────────────────── */
+.sidebar-dark {
+  --cui-sidebar-bg: #0d3320;
+  background: #0d3320 !important;
+}
+.sidebar-dark .sidebar-header {
+  background: #0a2a1a !important;
+  border-bottom-color: rgba(201,162,39,.25) !important;
+}
+/* Gold badge in sidebar nav */
+.sidebar-dark .nav-link .badge { background: #c9a227 !important; color: #1a2e1a !important; }
+/* Sidebar toggler arrow */
+.sidebar-toggler::before { color: rgba(255,255,255,.5) !important; }
+.sidebar-toggler:hover::before { color: #f0c040 !important; }
+
+/* ── Header topbar ────────────────────────────── */
+.header.header-sticky {
+  border-bottom: 2px solid rgba(26,107,58,.2) !important;
+}
+/* School name in topbar */
+.header .fw-semibold { color: var(--cui-body-color) !important; }
+
+/* ── Stat cards on dashboard ──────────────────── */
+.card.bg-primary  { background: linear-gradient(135deg, #1a6b3a, #2d8b50) !important; border: none !important; }
+.card.bg-success  { background: linear-gradient(135deg, #1a6b3a, #238d45) !important; border: none !important; }
+.card.bg-warning  { background: linear-gradient(135deg, #c9a227, #e8b830) !important; border: none !important; }
+.card.bg-warning .fs-2,
+.card.bg-warning .fs-1  { color: #1a2e1a !important; }
+.card.bg-warning .small { color: rgba(26,46,26,.8) !important; }
+.card.bg-danger   { background: linear-gradient(135deg, #b91c1c, #dc2626) !important; border: none !important; }
+
+/* ── General card styling ─────────────────────── */
+.card {
+  border-radius: 12px !important;
+  transition: box-shadow .2s !important;
+}
+.card:hover { box-shadow: 0 4px 20px rgba(26,107,58,.1) !important; }
+.card-header {
+  font-weight: 600 !important;
+  border-bottom: 2px solid rgba(26,107,58,.1) !important;
+}
+
+/* ── Table accents ────────────────────────────── */
+.table thead th {
+  background: rgba(26,107,58,.06) !important;
+  color: var(--cui-body-color) !important;
+  border-bottom: 2px solid rgba(26,107,58,.15) !important;
+  font-weight: 600 !important;
+  font-size: .82rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: .04em !important;
+}
+.table-hover tbody tr:hover td { background: rgba(26,107,58,.04) !important; }
+
+/* ── Badge colors ─────────────────────────────── */
+.badge.bg-success { background: #1a6b3a !important; }
+.badge.bg-warning { background: #c9a227 !important; color: #1a2e1a !important; }
+.badge.bg-info    { background: #2d8b50 !important; }
+
+/* ── Buttons ──────────────────────────────────── */
+.btn-primary {
+  background: linear-gradient(135deg, #1a6b3a, #2d8b50) !important;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(26,107,58,.3) !important;
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, #145530, #238d45) !important;
+  box-shadow: 0 4px 16px rgba(26,107,58,.45) !important;
+  transform: translateY(-1px);
+}
+.btn-warning {
+  background: linear-gradient(135deg, #c9a227, #e8b830) !important;
+  border: none !important;
+  color: #1a2e1a !important;
+}
+.btn-outline-secondary {
+  border-color: var(--cui-border-color) !important;
+  color: var(--cui-body-color) !important;
+}
+.btn-outline-secondary:hover {
+  background: rgba(26,107,58,.08) !important;
+  border-color: #1a6b3a !important;
+  color: #1a6b3a !important;
+}
+.btn-success {
+  background: linear-gradient(135deg, #1a6b3a, #238d45) !important;
+  border: none !important;
+}
+.btn-outline-primary {
+  color: #1a6b3a !important;
+  border-color: #1a6b3a !important;
+}
+.btn-outline-primary:hover {
+  background: #1a6b3a !important;
+  color: #fff !important;
+}
+.btn-outline-danger { border-color: #dc2626 !important; color: #dc2626 !important; }
+
+/* ── Nav tabs / pills ─────────────────────────── */
+.nav-pills .nav-link.active { background: #1a6b3a !important; }
+.nav-tabs .nav-link.active  { color: #1a6b3a !important; border-bottom-color: #1a6b3a !important; }
+
+/* ── Alert variants ───────────────────────────── */
+.alert-success {
+  background: #d4edda !important;
+  border-color: #9dd9b0 !important;
+  color: #0f5722 !important;
+}
+.alert-warning {
+  background: #fef9e7 !important;
+  border-color: #f0c040 !important;
+  color: #7d6413 !important;
+}
+
+/* ── Progress bars ────────────────────────────── */
+.progress-bar                { background: #1a6b3a !important; }
+.progress-bar.bg-success     { background: #1a6b3a !important; }
+.progress-bar.bg-warning     { background: #c9a227 !important; }
+.progress-bar.bg-danger      { background: #dc2626 !important; }
+
+/* ── Breadcrumb ───────────────────────────────── */
+.breadcrumb-item + .breadcrumb-item::before { color: var(--cui-muted, #6b7f6b) !important; }
+.breadcrumb-item a { color: #1a6b3a !important; font-weight: 500; }
+
+/* ── Page title accents ───────────────────────── */
+h4 { letter-spacing: -.01em; }
+
+/* ── Footer ───────────────────────────────────── */
+.footer {
+  background: var(--cui-body-bg) !important;
+  border-top: 1px solid var(--cui-border-color) !important;
+}
+
+/* ── Form focus ───────────────────────────────── */
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus {
+  border-color: #1a6b3a !important;
+  box-shadow: 0 0 0 .2rem rgba(26,107,58,.2) !important;
+}
+.form-check-input:checked {
+  background-color: #1a6b3a !important;
+  border-color: #1a6b3a !important;
+}
+
+/* ── Standalone page backgrounds ─────────────── */
+/* Login / kiosk / register pages */
+.login-page-bg {
+  background: linear-gradient(135deg, #0d3320 0%, #1a6b3a 50%, #0a2d18 100%) !important;
+}

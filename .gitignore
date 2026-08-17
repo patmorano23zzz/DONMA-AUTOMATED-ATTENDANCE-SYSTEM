@@ -1,0 +1,18 @@
+# Face model binary files (large — download via setup_face_models.php)
+assets/face-models/*.bin
+
+# Uploaded student photos
+uploads/students/*.jpg
+uploads/students/*.jpeg
+uploads/students/*.png
+uploads/students/*.webp
+
+# IDE / OS
+.vscode/
+.DS_Store
+Thumbs.db
+*.log
+
+# PHP env / secrets
+*.env
+settings.json

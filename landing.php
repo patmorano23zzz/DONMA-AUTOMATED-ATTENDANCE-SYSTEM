@@ -344,26 +344,7 @@ section { padding:5rem 2rem; }
 .step h3 { font-weight:700; margin-bottom:.4rem; font-size:.95rem; color:var(--text); }
 .step p  { font-size:.83rem; color:var(--muted); }
 
-/* ── Registration section ────────────────────────── */
-.reg-bg { background:var(--bg3); }
-.reg-grid { display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:center; }
-.reg-steps-list { list-style:none; display:flex; flex-direction:column; gap:.7rem; margin-bottom:1.75rem; }
-.reg-step-item { display:flex; align-items:center; gap:.75rem; font-size:.93rem; color:var(--text); }
-.reg-step-num {
-  width:28px; height:28px; border-radius:50%;
-  background:linear-gradient(135deg,var(--green),var(--gold));
-  color:#fff; display:flex; align-items:center; justify-content:center;
-  font-size:.72rem; font-weight:800; flex-shrink:0;
-}
-.already-card {
-  background:var(--surface); border-radius:20px; padding:2.25rem;
-  box-shadow:var(--shadow-lg); border:1px solid var(--border); text-align:center;
-}
-.already-card h3 { font-size:1.05rem; font-weight:700; margin:.85rem 0 .5rem; color:var(--text); }
-.already-card p  { font-size:.85rem; color:var(--muted); margin-bottom:1.5rem; }
-.btn-block { width:100%; justify-content:center; }
 
-@media(max-width:768px){ .reg-grid { grid-template-columns:1fr !important; gap:2rem !important; } }
 
 /* ── CTA strip ───────────────────────────────────── */
 .cta-strip {
@@ -411,7 +392,6 @@ section { padding:5rem 2rem; }
   <div class="nav-center" id="nav-links">
     <a href="#features">Features</a>
     <a href="#how-it-works">How It Works</a>
-    <a href="#register">Registration</a>
     <a href="<?= $u ?>/kiosk.php">Student Kiosk</a>
     <a href="<?= $u ?>/authentication/login.php?force=1" class="nav-login">Login</a>
   </div>
@@ -438,15 +418,15 @@ section { padding:5rem 2rem; }
         Smart Attendance<br>for <em>Don Marcelo<br>C. Marty</em><br>Elementary
       </h1>
       <p class="hero-sub anim-fade-up delay-2">
-        Automated, biometric-powered attendance tracking with QR codes and face verification.
-        Real-time monitoring for students, teachers, and administrators.
+        Automated attendance tracking with QR codes and face capture.
+        Teachers enroll students and manage records — students just scan and go.
       </p>
       <div class="hero-actions anim-fade-up delay-3">
         <a href="<?= $u ?>/kiosk.php" class="btn btn-gold btn-lg btn-pulse">
           📷 Open Student Kiosk
         </a>
-        <a href="#register" class="btn btn-outline-w btn-lg">
-          📝 Student Registration
+        <a href="<?= $u ?>/authentication/login.php?force=1" class="btn btn-outline-w btn-lg">
+          🔑 Staff Login
         </a>
       </div>
     </div>
@@ -469,8 +449,8 @@ section { padding:5rem 2rem; }
             <div><div class="label">QR Attendance</div><div class="desc">Scan &amp; record instantly</div></div>
           </div>
           <div class="feature-pill">
-            <span class="icon">🔐</span>
-            <div><div class="label">Face Verification</div><div class="desc">Biometric security</div></div>
+            <span class="icon">📸</span>
+            <div><div class="label">Face Capture</div><div class="desc">Auto photo on check-in</div></div>
           </div>
         </div>
         <div class="stat-row">
@@ -507,9 +487,9 @@ section { padding:5rem 2rem; }
         <p>Each student gets a unique QR code (DCMMES-LRN). Scan at the kiosk for instant time-in and time-out recording.</p>
       </div>
       <div class="feature-card reveal delay-2">
-        <div class="feature-icon">🔐</div>
-        <h3>Face Verification</h3>
-        <p>Biometric face capture during registration and attendance. Override option available for edge cases.</p>
+        <div class="feature-icon">📸</div>
+        <h3>Face Capture</h3>
+        <p>Automatic face photo taken at check-in after QR scan. Smart alignment detection ensures a clear, unobstructed photo every time.</p>
       </div>
       <div class="feature-card reveal delay-3">
         <div class="feature-icon">📊</div>
@@ -541,23 +521,23 @@ section { padding:5rem 2rem; }
     <div class="text-center reveal">
       <span class="section-tag">How It Works</span>
       <h2 class="section-title">Simple 4-step process</h2>
-      <p class="section-sub">From student registration to daily attendance — the whole flow in under a minute.</p>
+      <p class="section-sub">From enrollment to daily attendance — the whole flow in under a minute.</p>
     </div>
     <div class="steps-grid">
       <div class="step reveal delay-1">
         <div class="step-num">1</div>
-        <h3>Student Registers</h3>
-        <p>Enter LRN, capture face in 4 poses, set password and accept terms.</p>
+        <h3>Teacher Enrolls Student</h3>
+        <p>Admin or teacher registers the student and prints a unique QR card (DCMMES-LRN).</p>
       </div>
       <div class="step reveal delay-2">
         <div class="step-num">2</div>
-        <h3>Get QR Code</h3>
-        <p>System generates a unique QR (DCMMES-LRN). Print and keep it.</p>
+        <h3>Scan at Kiosk</h3>
+        <p>Hold your QR card in front of the kiosk camera on arrival or departure.</p>
       </div>
       <div class="step reveal delay-3">
         <div class="step-num">3</div>
-        <h3>Scan at Kiosk</h3>
-        <p>Scan QR code on arrival. Face verification confirms identity. Attendance recorded instantly.</p>
+        <h3>Face Capture</h3>
+        <p>Look straight at the camera and hold still. Photo is captured automatically.</p>
       </div>
       <div class="step reveal delay-4">
         <div class="step-num">4</div>
@@ -568,52 +548,16 @@ section { padding:5rem 2rem; }
   </div>
 </section>
 
-<!-- ══ REGISTRATION ═══════════════════════════════════════════════════════ -->
-<section id="register" class="reg-bg">
-  <div class="section-inner">
-    <div class="reg-grid">
-      <div class="reveal">
-        <span class="section-tag">Students</span>
-        <h2 class="section-title">New student? Register now.</h2>
-        <p class="section-sub" style="margin-bottom:1.5rem;">
-          No account needed. Just enter your LRN, capture your face, and your QR code is ready in minutes.
-        </p>
-        <ul class="reg-steps-list">
-          <?php foreach(['Enter your 10–12 digit LRN','Capture face (4 poses)','Set your password','Print your QR code'] as $i => $step): ?>
-          <li class="reg-step-item">
-            <span class="reg-step-num"><?= $i+1 ?></span>
-            <?= htmlspecialchars($step) ?>
-          </li>
-          <?php endforeach; ?>
-        </ul>
-        <a href="<?= $u ?>/students/register.php" class="btn btn-green btn-lg">
-          📝 Start Registration →
-        </a>
-      </div>
-      <div class="reveal delay-2">
-        <div class="already-card">
-          <img src="<?= $u ?>/assets/img/school-logo.png?v=202608092157"
-               alt="School Logo" style="width:72px;height:72px;object-fit:contain;">
-          <h3>Already registered?</h3>
-          <p>Go to the Student Kiosk to record your attendance by scanning your QR code.</p>
-          <a href="<?= $u ?>/kiosk.php" class="btn btn-green btn-block">
-            📷 Open Student Kiosk
-          </a>
-          <p style="margin-top:.85rem;font-size:.78rem;color:var(--muted);">No login required at the kiosk</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+
 
 
 <!-- ══ CTA STRIP ═════════════════════════════════════════════════════════ -->
 <div class="cta-strip">
   <h2 class="reveal">Ready to go digital?</h2>
-  <p class="reveal delay-1">Admins and teachers — sign in to access the dashboard, manage students, and generate reports.</p>
+  <p class="reveal delay-1">Admins and teachers — sign in to manage students, view attendance records, and generate reports.</p>
   <div class="cta-btns reveal delay-2">
     <a href="<?= $u ?>/authentication/login.php?force=1" class="btn btn-gold btn-lg">🔑 Admin / Teacher Login</a>
-    <a href="<?= $u ?>/authentication/register.php" class="btn btn-outline-w btn-lg">📋 Teacher Registration</a>
+    <a href="<?= $u ?>/kiosk.php" class="btn btn-outline-w btn-lg">📷 Open Student Kiosk</a>
   </div>
 </div>
 
@@ -627,7 +571,6 @@ section { padding:5rem 2rem; }
     &copy; <?= date('Y') ?> All rights reserved
     &nbsp;|&nbsp; <a href="<?= $u ?>/authentication/login.php?force=1">Staff Login</a>
     &nbsp;|&nbsp; <a href="<?= $u ?>/kiosk.php">Student Kiosk</a>
-    &nbsp;|&nbsp; <a href="<?= $u ?>/students/register.php">Register</a>
   </div>
 </footer>
 

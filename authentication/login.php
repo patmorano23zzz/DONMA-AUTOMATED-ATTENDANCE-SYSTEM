@@ -204,7 +204,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <nav class="nav">
     <a href="<?= $u ?>/landing.php">← Home</a>
     <a href="<?= $u ?>/kiosk.php">Student Kiosk</a>
-    <a href="<?= $u ?>/students/register.php">Student Registration</a>
   </nav>
 </header>
 
@@ -255,7 +254,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <div class="divider"><span>or quick access</span></div>
       <div class="quick-links">
         <a href="<?= $u ?>/kiosk.php">📷 Student Kiosk</a>
-        <a href="<?= $u ?>/students/register.php">📝 Register Student</a>
       </div>
     </div>
 

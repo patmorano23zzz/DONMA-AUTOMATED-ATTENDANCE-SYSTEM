@@ -20,58 +20,96 @@ if (!empty($_SESSION['flash'])) {
 <link rel="icon" type="image/png" sizes="16x16" href="<?= $appUrl ?>/assets/favicon/favicon-16x16.png?v=202608092157">
 <link rel="stylesheet" href="<?= $appUrl ?>/vendors/simplebar/css/simplebar.css">
 <link rel="stylesheet" href="<?= $appUrl ?>/css/vendors/simplebar.css">
-<link href="<?= $appUrl ?>/css/style.css" rel="stylesheet">
+<link rel="stylesheet" href="<?= $appUrl ?>/css/style.css?v=<?= date('YmdHi') ?>">
 <style>
-/* Sidebar brand: show logo only when sidebar is narrow/collapsed */
-.sidebar-narrow          .sidebar-brand-full,
-.sidebar-narrow-unfoldable:not(:hover) .sidebar-brand-full { display:none !important; }
-.sidebar-narrow          .sidebar-brand-narrow,
-.sidebar-narrow-unfoldable:not(:hover) .sidebar-brand-narrow { display:block !important; }
-.sidebar-brand-narrow { display:none; }
-.sidebar-brand-full   { display:block; }
+/* ── Sidebar brand visibility ── */
+.sidebar-brand-narrow { display: none; }
+.sidebar-brand-full   { display: block; }
+.sidebar-narrow .sidebar-brand-full,
+.sidebar-narrow-unfoldable:not(:hover) .sidebar-brand-full { display: none !important; }
+.sidebar-narrow .sidebar-brand-narrow,
+.sidebar-narrow-unfoldable:not(:hover) .sidebar-brand-narrow { display: block !important; }
+
+/* ── Medium screens (576–1199px): icon-only sidebar ── */
+@media (min-width: 576px) and (max-width: 1199.98px) {
+  #sidebar {
+    display: flex !important;
+    position: fixed !important;
+    width: 4rem !important;
+    flex: 0 0 4rem !important;
+    overflow: hidden !important;
+  }
+  #sidebar .sidebar-nav {
+    overflow: hidden !important;
+    width: 4rem !important;
+  }
+  #sidebar .nav-label,
+  #sidebar .nav-badge,
+  #sidebar .nav-title {
+    display: none !important;
+  }
+  #sidebar .nav-link {
+    justify-content: center !important;
+    padding-left:  0 !important;
+    padding-right: 0 !important;
+    overflow: hidden !important;
+  }
+  #sidebar .sidebar-brand-full   { display: none !important; }
+  #sidebar .sidebar-brand-narrow { display: block !important; }
+  #sidebar .sidebar-footer       { display: none !important; }
+  /* Push wrapper content past the 4rem sidebar */
+  .wrapper {
+    margin-left: 4rem !important;
+  }
+  /* Hide the mobile backdrop */
+  .sidebar-backdrop { display: none !important; }
+}
+
+/* ── Large screens (≥1200px) narrow/unfoldable state ── */
+@media (min-width: 1200px) {
+  .sidebar-narrow .nav-label,
+  .sidebar-narrow-unfoldable:not(:hover) .nav-label,
+  .sidebar-narrow .nav-badge,
+  .sidebar-narrow-unfoldable:not(:hover) .nav-badge,
+  .sidebar-narrow .nav-title,
+  .sidebar-narrow-unfoldable:not(:hover) .nav-title {
+    display: none !important;
+  }
+  .sidebar-narrow .nav-link,
+  .sidebar-narrow-unfoldable:not(:hover) .nav-link {
+    justify-content: center !important;
+    padding-left:  0 !important;
+    padding-right: 0 !important;
+    overflow: hidden !important;
+  }
+  .sidebar-narrow .sidebar-nav,
+  .sidebar-narrow-unfoldable:not(:hover) .sidebar-nav {
+    overflow: hidden !important;
+  }
+}
 
 /* ── Mobile optimisations (screens < 576px) ── */
 @media (max-width: 575.98px) {
-  /* Tighter page padding */
   .container-lg { padding-left:.75rem !important; padding-right:.75rem !important; }
-
-  /* Breadcrumb — smaller */
   .breadcrumb { font-size:.75rem; margin-bottom:.5rem !important; }
-
-  /* Stat cards — compact, equal height in 2×2 grid */
   .card-body { padding:.75rem !important; }
   .card .fs-2 { font-size:1.6rem !important; }
   .card .small { font-size:.7rem !important; }
-
-  /* Table — make text smaller so it fits */
   .table { font-size:.78rem; }
   .table th, .table td { padding:.4rem .5rem; }
-
-  /* Card headers */
   .card-header { font-size:.82rem; padding:.6rem .75rem; }
-
-  /* Buttons in tables — compact */
   .btn-sm { padding:.25rem .5rem; font-size:.72rem; }
-
-  /* Quick Actions — stack vertically, full width */
   .d-flex.gap-2.flex-wrap { gap:.4rem !important; }
-
-  /* Footer — smaller */
   .footer { font-size:.72rem; padding:.5rem .75rem !important; }
-
-  /* Header topbar */
   .header .container-fluid { padding-left:.75rem; padding-right:.75rem; }
-
-  /* Reduce topbar school name width */
   .header .fw-semibold { font-size:.75rem; }
-
-  /* Dashboard heading */
   h4 { font-size:1rem !important; }
 }
 </style>
 <script src="<?= $appUrl ?>/js/config.js"></script>
 <script src="<?= $appUrl ?>/js/color-modes.js"></script>
 <script src="<?= $appUrl ?>/js/donma-modal.js"></script>
+<script src="<?= $appUrl ?>/js/sidebar-narrow.js?v=<?= date('YmdHi') ?>" defer></script>
 <?php if ($flash): ?>
 <script>
 document.addEventListener('DOMContentLoaded', () => {

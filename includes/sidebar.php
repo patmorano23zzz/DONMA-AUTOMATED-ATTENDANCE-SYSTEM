@@ -72,18 +72,6 @@ function navActive(string $page, string $current): string {
       </a>
     </li>
 
-    <li class="nav-item">
-      <a class="nav-link<?= navActive('enroll-student', $activePage) ?>" href="<?= $u ?>/students/enroll.php">
-        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-          <path fill="var(--ci-primary-color,currentcolor)" d="M256 0C114.6 0 0 114.6 0 256s114.6 256 256 256 256-114.6 256-256S397.4 0 256 0zm112 272h-96v96h-32v-96h-96v-32h96v-96h32v96h96v32z" class="ci-primary"/>
-        </svg>
-        Enroll Student
-        <?php if ($userRole === 'teacher'): ?>
-        <span class="badge badge-sm bg-info ms-auto">Needs Approval</span>
-        <?php endif; ?>
-      </a>
-    </li>
-
     <?php if ($userRole === 'teacher'): ?>
     <li class="nav-item">
       <a class="nav-link<?= navActive('teacher-reports', $activePage) ?>" href="<?= $u ?>/teacher/reports.php">
@@ -91,6 +79,14 @@ function navActive(string $page, string $current): string {
           <path fill="var(--ci-primary-color,currentcolor)" d="M104 496H56c-13.3 0-24-10.7-24-24V328c0-13.3 10.7-24 24-24h48c13.3 0 24 10.7 24 24v144c0 13.3-10.7 24-24 24zm120 0h-48c-13.3 0-24-10.7-24-24V232c0-13.3 10.7-24 24-24h48c13.3 0 24 10.7 24 24v240c0 13.3-10.7 24-24 24zm120 0h-48c-13.3 0-24-10.7-24-24V152c0-13.3 10.7-24 24-24h48c13.3 0 24 10.7 24 24v320c0 13.3-10.7 24-24 24zm120 0h-48c-13.3 0-24-10.7-24-24V72c0-13.3 10.7-24 24-24h48c13.3 0 24 10.7 24 24v400c0 13.3-10.7 24-24 24z" class="ci-primary"/>
         </svg>
         My Class Report
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link<?= navActive('teacher-monitor', $activePage) ?>" href="<?= $u ?>/teacher/monitor.php">
+        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+          <path fill="var(--ci-primary-color,currentcolor)" d="M0 96C0 60.7 28.7 32 64 32H448c35.3 0 64 28.7 64 64V352c0 35.3-28.7 64-64 64H298.5l13.6 48H352c17.7 0 32 14.3 32 32s-14.3 32-32 32H160c-17.7 0-32-14.3-32-32s14.3-32 32-32h39.9l13.6-48H64c-35.3 0-64-28.7-64-64V96zM64 96V352H448V96H64z" class="ci-primary"/>
+        </svg>
+        Live Monitoring
       </a>
     </li>
     <?php endif; ?>

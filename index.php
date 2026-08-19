@@ -72,7 +72,7 @@ $myStudentCount = ($userRole === 'teacher') ? $totalStudents : 0;
 if ($userRole === 'teacher') {
     $stmtRecent = $pdo->prepare(
         "SELECT a.id, s.lrn, CONCAT(s.last_name,', ',s.first_name) AS student_name,
-                s.grade_section, a.time_in, a.time_out, a.status
+                s.grade_section, a.time_in, a.time_out, a.status, a.face_image
          FROM attendance a
          JOIN students s ON s.id = a.student_id
          WHERE s.teacher_id=? AND s.enrollment_status='approved' AND DATE(a.time_in)=?
@@ -82,7 +82,7 @@ if ($userRole === 'teacher') {
 } else {
     $stmtRecent = $pdo->prepare(
         "SELECT a.id, s.lrn, CONCAT(s.last_name,', ',s.first_name) AS student_name,
-                s.grade_section, a.time_in, a.time_out, a.status
+                s.grade_section, a.time_in, a.time_out, a.status, a.face_image
          FROM attendance a
          JOIN students s ON s.id = a.student_id
          WHERE DATE(a.time_in)=?
@@ -246,12 +246,6 @@ $base       = './';
                 <a href="attendance/records.php" class="btn btn-outline-secondary">
                   View Today's Attendance
                 </a>
-                <a href="students/enroll.php" class="btn btn-outline-secondary">
-                  Enroll Student
-                  <?php if ($userRole === 'teacher'): ?>
-                  <span class="badge bg-info ms-1" style="font-size:.65rem;">Needs Approval</span>
-                  <?php endif; ?>
-                </a>
                 <?php if ($userRole === 'teacher'): ?>
                 <a href="teacher/reports.php" class="btn btn-outline-secondary">
                   My Class Report
@@ -297,6 +291,7 @@ $base       = './';
                     <th>Time In</th>
                     <th>Time Out</th>
                     <th>Status</th>
+                    <?php if ($userRole === 'teacher'): ?><th>Face</th><?php endif; ?>
                   </tr>
                 </thead>
                 <tbody>
@@ -321,6 +316,17 @@ $base       = './';
                       ?>
                       <span class="badge bg-<?= $badge ?> text-capitalize"><?= htmlspecialchars($log['status']) ?></span>
                     </td>
+                    <?php if ($userRole === 'teacher'): ?>
+                    <td>
+                      <?php if (!empty($log['face_image'])): ?>
+                      <img src="<?= $u ?>/<?= htmlspecialchars($log['face_image']) ?>" alt="face"
+                           style="width:40px;height:40px;border-radius:8px;object-fit:cover;cursor:pointer;border:2px solid #dee2e6;"
+                           onclick="showFaceModal(this.src,'<?= htmlspecialchars(addslashes($log['student_name'])) ?>')">
+                      <?php else: ?>
+                      <span style="font-size:1.2rem;color:#aaa;">📷</span>
+                      <?php endif; ?>
+                    </td>
+                    <?php endif; ?>
                   </tr>
                   <?php endforeach; ?>
                   <?php endif; ?>
@@ -343,6 +349,30 @@ $base       = './';
   <script src="<?= $u ?>/vendors/@coreui/coreui/js/coreui.bundle.min.js"></script>
   <script src="<?= $u ?>/vendors/simplebar/js/simplebar.min.js"></script>
   <script src="<?= $u ?>/vendors/chart.js/js/chart.umd.js"></script>
+
+  <?php if ($userRole === 'teacher'): ?>
+  <!-- Face preview modal -->
+  <div class="modal fade" id="faceModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="faceModalLabel">Face Photo</h5>
+          <button type="button" class="btn-close" data-coreui-dismiss="modal"></button>
+        </div>
+        <div class="modal-body text-center">
+          <img id="faceModalImg" src="" alt="Face" style="max-width:100%;border-radius:12px;">
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+  function showFaceModal(src, title) {
+    document.getElementById('faceModalImg').src = src;
+    document.getElementById('faceModalLabel').textContent = title;
+    new coreui.Modal(document.getElementById('faceModal')).show();
+  }
+  </script>
+  <?php endif; ?>
   <script>
     const ctx = document.getElementById('weeklyChart');
     if (ctx) {

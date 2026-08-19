@@ -34,6 +34,25 @@ function getDB(): PDO {
         ];
         try {
             $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
+            // Auto-migrate tables
+            $pdo->exec("CREATE TABLE IF NOT EXISTS webrtc_signals (
+              id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+              role        VARCHAR(10)  NOT NULL,
+              target_role VARCHAR(10)  NOT NULL,
+              type        VARCHAR(20)  NOT NULL,
+              data        MEDIUMTEXT   NOT NULL,
+              created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+              INDEX idx_target (target_role, id)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+            $pdo->exec("CREATE TABLE IF NOT EXISTS kiosk_messages (
+              id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+              teacher_id INT UNSIGNED NOT NULL,
+              message VARCHAR(300) NOT NULL,
+              type ENUM('info','warning','success') NOT NULL DEFAULT 'info',
+              created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+              INDEX idx_created (created_at),
+              FOREIGN KEY (teacher_id) REFERENCES users(id) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
         } catch (PDOException $e) {
             error_log('Database connection failed: ' . $e->getMessage());
             http_response_code(500);

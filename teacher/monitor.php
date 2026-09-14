@@ -133,7 +133,34 @@ $base       = './../';
     { urls: 'stun:stun1.l.google.com:19302' }
   ]};
 
-  let rtcPeer = null, lastKioskSignalId = 0, pollTimer = null;
+  let rtcPeer = null, lastKioskSignalId = 0, pollTimer = null, waitingForOffer = true;
+
+  function createPeer() {
+    if (rtcPeer) { try { rtcPeer.close(); } catch(e){} rtcPeer = null; }
+    rtcPeer = new RTCPeerConnection(RTC_CONFIG);
+    rtcPeer.addTransceiver('video', { direction: 'recvonly' });
+    rtcPeer.ontrack = (e) => {
+      const video = document.getElementById('monitor-video');
+      video.srcObject = e.streams[0] || new MediaStream([e.track]);
+    };
+    rtcPeer.onicecandidate = async (e) => {
+      if (e.candidate) await postSignal('viewer', 'ice-viewer', e.candidate.toJSON());
+    };
+    rtcPeer.onconnectionstatechange = () => {
+      const s = rtcPeer.connectionState;
+      document.getElementById('rtc-state').textContent = s;
+      if (s === 'connected') setStatus('connected');
+      if (s === 'disconnected' || s === 'failed') {
+        setStatus('disconnected');
+        waitingForOffer = true;
+        setTimeout(startViewer, 5000);
+      }
+    };
+    rtcPeer.oniceconnectionstatechange = () => {
+      document.getElementById('ice-state').textContent = rtcPeer.iceConnectionState;
+    };
+    return rtcPeer;
+  }
 
   // ── Status helpers ──────────────────────────────────────────────────────────
   function setStatus(state) {
@@ -154,42 +181,10 @@ $base       = './../';
       state === 'connected' ? 'Live feed active' : 'Waiting for kiosk camera…';
   }
 
-  // ── WebRTC viewer ───────────────────────────────────────────────────────────
   async function startViewer() {
-    if (rtcPeer) { try { rtcPeer.close(); } catch(e){} rtcPeer = null; }
-    setStatus('connecting');
-
-    rtcPeer = new RTCPeerConnection(RTC_CONFIG);
-
-    rtcPeer.ontrack = (e) => {
-      const video = document.getElementById('monitor-video');
-      if (video.srcObject !== e.streams[0]) {
-        video.srcObject = e.streams[0];
-      }
-    };
-
-    rtcPeer.onicecandidate = async (e) => {
-      if (e.candidate) await postSignal('viewer', 'ice-viewer', e.candidate.toJSON());
-    };
-
-    rtcPeer.onconnectionstatechange = () => {
-      const s = rtcPeer.connectionState;
-      document.getElementById('rtc-state').textContent = s;
-      if (s === 'connected')    setStatus('connected');
-      if (s === 'disconnected' || s === 'failed') {
-        setStatus('disconnected');
-        setTimeout(startViewer, 8000);
-      }
-    };
-
-    rtcPeer.oniceconnectionstatechange = () => {
-      document.getElementById('ice-state').textContent = rtcPeer.iceConnectionState;
-    };
-
-    // Start polling for kiosk offer
+    setStatus('waiting');
     if (pollTimer) clearInterval(pollTimer);
-    pollTimer = setInterval(pollKioskSignals, 10000);
-    // Poll immediately on start
+    pollTimer = setInterval(pollKioskSignals, 5000);
     await pollKioskSignals();
   }
 
@@ -198,18 +193,29 @@ $base       = './../';
       const res  = await fetch(`${SIGNAL_URL}?role=viewer&since=${lastKioskSignalId}`);
       const data = await res.json();
       document.getElementById('last-signal').textContent = new Date().toLocaleTimeString();
+      let gotOffer = false;
       for (const sig of (data.signals || [])) {
         lastKioskSignalId = sig.id;
         const payload = JSON.parse(sig.data);
         if (sig.type === 'offer') {
-          await rtcPeer.setRemoteDescription(new RTCSessionDescription(payload));
-          const answer = await rtcPeer.createAnswer();
-          await rtcPeer.setLocalDescription(answer);
-          await postSignal('viewer', 'answer', { sdp: answer.sdp, type: answer.type });
+          // Ignore stale offers while a live connection already exists
+          if (rtcPeer && rtcPeer.connectionState === 'connected') continue;
+          gotOffer = true;
+          waitingForOffer = false;
+          const peer = createPeer();
           setStatus('connecting');
-        } else if (sig.type === 'ice-kiosk' && rtcPeer.remoteDescription) {
+          await peer.setRemoteDescription(new RTCSessionDescription(payload));
+          const answer = await peer.createAnswer();
+          await peer.setLocalDescription(answer);
+          await postSignal('viewer', 'answer', { sdp: answer.sdp, type: answer.type });
+        } else if (sig.type === 'ice-kiosk' && rtcPeer && rtcPeer.remoteDescription) {
           try { await rtcPeer.addIceCandidate(new RTCIceCandidate(payload)); } catch(e){}
         }
+      }
+      // No offer available (it likely expired in the DB) — ask the kiosk for a fresh one.
+      // The kiosk throttles re-offers to at most one per 15s.
+      if (waitingForOffer && !gotOffer) {
+        await postSignal('viewer', 'request-offer', {});
       }
     } catch(e) {}
   }
@@ -224,9 +230,13 @@ $base       = './../';
     } catch(e) {}
   }
 
-  document.getElementById('btn-reconnect').addEventListener('click', () => {
-    lastKioskSignalId = 0;
-    startViewer();
+  document.getElementById('btn-reconnect').addEventListener('click', async () => {
+    // Ask the kiosk for a FRESH offer instead of replaying stale signals
+    // (replaying old offers caused ICE to connect but media to never flow)
+    waitingForOffer = true;
+    if (rtcPeer) { try { rtcPeer.close(); } catch(e){} rtcPeer = null; }
+    setStatus('waiting');
+    await postSignal('viewer', 'request-offer', {});
   });
 
   // ── Collapsible message panel ───────────────────────────────────────────────

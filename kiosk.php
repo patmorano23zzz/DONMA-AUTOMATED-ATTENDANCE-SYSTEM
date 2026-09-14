@@ -473,7 +473,7 @@ const RTC_CONFIG = { iceServers: [
 ]};
 
 let rtcPeer = null, monitorStream = null, monitorPollTimer = null;
-let lastViewerSignalId = 0, rtcReady = false;
+let lastViewerSignalId = 0, rtcReady = false, lastOfferAt = 0;
 
 async function startMonitorBroadcast() {
   try {
@@ -497,7 +497,7 @@ async function startMonitorBroadcast() {
       document.body.appendChild(mv);
     }
     mv.srcObject = monitorStream;
-    monitorPollTimer = setInterval(pollViewerSignals, 10000);
+    monitorPollTimer = setInterval(pollViewerSignals, 3000);
     await createOffer();
   } catch(e) {
     setTimeout(startMonitorBroadcast, 30000);
@@ -544,6 +544,17 @@ async function createOffer() {
   await rtcPeer.setLocalDescription(offer);
   await postSignal('kiosk', 'offer', { sdp: offer.sdp, type: offer.type });
   lastViewerSignalId = 0;
+  lastOfferAt = Date.now();
+
+  // Watchdog: if no connection is established within 25s, post a fresh offer
+  // (prevents the deadlock where an offer expires in the DB and is never re-sent)
+  const thisPeer = rtcPeer;
+  setTimeout(() => {
+    if (rtcPeer === thisPeer && rtcPeer.connectionState !== 'connected'
+        && Date.now() - lastOfferAt >= 24000) {
+      createOffer();
+    }
+  }, 25000);
 }
 
 async function pollViewerSignals() {
@@ -557,6 +568,11 @@ async function pollViewerSignals() {
         await rtcPeer.setRemoteDescription(new RTCSessionDescription(payload));
       } else if (sig.type === 'ice-viewer' && rtcPeer && rtcPeer.remoteDescription) {
         try { await rtcPeer.addIceCandidate(new RTCIceCandidate(payload)); } catch(e){}
+      } else if (sig.type === 'request-offer'
+                 && (!rtcPeer || rtcPeer.connectionState !== 'connected')
+                 && Date.now() - lastOfferAt > 15000) {
+        // Teacher is waiting for a fresh offer (old one expired in the DB)
+        await createOffer();
       }
     }
   } catch(e) {}

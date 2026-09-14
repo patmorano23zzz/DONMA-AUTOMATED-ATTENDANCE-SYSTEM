@@ -1,7 +1,8 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) session_start();
 if (empty($_SESSION['user_id']) || $_SESSION['role'] !== 'teacher') {
-    header('Location: ../authentication/login.php'); exit;
+  header('Location: ../authentication/login.php');
+  exit;
 }
 require_once __DIR__ . '/../config/db.php';
 $u = APP_URL;
@@ -11,18 +12,62 @@ $base       = './../';
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <?php include __DIR__ . '/../includes/head.php'; ?>
   <style>
-  #monitor-video{width:100%;border-radius:12px;background:#000;display:block;min-height:240px;}
-  .status-dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:6px;}
-  .status-dot.green{background:#22c55e;animation:pulse 1.5s infinite;}
-  .status-dot.red{background:#ef4444;}
-  .status-dot.yellow{background:#f59e0b;animation:pulse 1.5s infinite;}
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-  .msg-collapsed{display:none;}
+    #monitor-video {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 4 / 3;
+      max-height: 65vh;
+      margin: 0 auto;
+      border-radius: 12px;
+      background: #000;
+      display: block;
+      object-fit: cover;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 6px;
+    }
+
+    .status-dot.green {
+      background: #22c55e;
+      animation: pulse 1.5s infinite;
+    }
+
+    .status-dot.red {
+      background: #ef4444;
+    }
+
+    .status-dot.yellow {
+      background: #f59e0b;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: .4
+      }
+    }
+
+    .msg-collapsed {
+      display: none;
+    }
   </style>
 </head>
+
 <body>
   <?php include __DIR__ . '/../includes/sidebar.php'; ?>
   <div class="wrapper d-flex flex-column min-vh-100">
@@ -90,14 +135,14 @@ $base       = './../';
             <!-- Send Message (minimized) -->
             <div class="card">
               <div class="card-header fw-semibold d-flex align-items-center justify-content-between"
-                   style="cursor:pointer;" id="msg-toggle">
+                style="cursor:pointer;" id="msg-toggle">
                 <span>📢 Send Kiosk Message</span>
                 <span id="msg-chevron">▼</span>
               </div>
               <div id="msg-body" class="card-body msg-collapsed">
                 <div class="mb-2">
                   <input type="text" id="msg-text" class="form-control form-control-sm"
-                         maxlength="300" placeholder="Type a message…">
+                    maxlength="300" placeholder="Type a message…">
                 </div>
                 <div class="mb-2">
                   <select id="msg-type" class="form-select form-select-sm">
@@ -126,158 +171,224 @@ $base       = './../';
   <script src="<?= $u ?>/vendors/@coreui/coreui/js/coreui.bundle.min.js"></script>
   <script src="<?= $u ?>/vendors/simplebar/js/simplebar.min.js"></script>
   <script>
-  const APP_URL    = <?= json_encode($u) ?>;
-  const SIGNAL_URL = APP_URL + '/api/monitor/signal.php';
-  const RTC_CONFIG = { iceServers: [
-    { urls: 'stun:stun.l.google.com:19302' },
-    { urls: 'stun:stun1.l.google.com:19302' }
-  ]};
-
-  let rtcPeer = null, lastKioskSignalId = 0, pollTimer = null, waitingForOffer = true;
-
-  function createPeer() {
-    if (rtcPeer) { try { rtcPeer.close(); } catch(e){} rtcPeer = null; }
-    rtcPeer = new RTCPeerConnection(RTC_CONFIG);
-    rtcPeer.addTransceiver('video', { direction: 'recvonly' });
-    rtcPeer.ontrack = (e) => {
-      const video = document.getElementById('monitor-video');
-      video.srcObject = e.streams[0] || new MediaStream([e.track]);
-    };
-    rtcPeer.onicecandidate = async (e) => {
-      if (e.candidate) await postSignal('viewer', 'ice-viewer', e.candidate.toJSON());
-    };
-    rtcPeer.onconnectionstatechange = () => {
-      const s = rtcPeer.connectionState;
-      document.getElementById('rtc-state').textContent = s;
-      if (s === 'connected') setStatus('connected');
-      if (s === 'disconnected' || s === 'failed') {
-        setStatus('disconnected');
-        waitingForOffer = true;
-        setTimeout(startViewer, 5000);
-      }
-    };
-    rtcPeer.oniceconnectionstatechange = () => {
-      document.getElementById('ice-state').textContent = rtcPeer.iceConnectionState;
-    };
-    return rtcPeer;
-  }
-
-  // ── Status helpers ──────────────────────────────────────────────────────────
-  function setStatus(state) {
-    const dot  = document.getElementById('status-dot');
-    const text = document.getElementById('status-text');
-    const badge = document.getElementById('conn-status');
-    const states = {
-      waiting:     { dot:'red',    text:'Waiting for kiosk…',  badge:'bg-secondary' },
-      connecting:  { dot:'yellow', text:'Connecting…',         badge:'bg-warning text-dark' },
-      connected:   { dot:'green',  text:'Live',                badge:'bg-success' },
-      disconnected:{ dot:'red',    text:'Disconnected',        badge:'bg-danger' },
-    };
-    const s = states[state] || states.waiting;
-    dot.className  = 'status-dot ' + s.dot;
-    text.textContent = s.text;
-    badge.className  = 'badge fs-6 ' + s.badge;
-    document.getElementById('feed-note').textContent =
-      state === 'connected' ? 'Live feed active' : 'Waiting for kiosk camera…';
-  }
-
-  async function startViewer() {
-    setStatus('waiting');
-    if (pollTimer) clearInterval(pollTimer);
-    pollTimer = setInterval(pollKioskSignals, 5000);
-    await pollKioskSignals();
-  }
-
-  async function pollKioskSignals() {
-    try {
-      const res  = await fetch(`${SIGNAL_URL}?role=viewer&since=${lastKioskSignalId}`);
-      const data = await res.json();
-      document.getElementById('last-signal').textContent = new Date().toLocaleTimeString();
-      let gotOffer = false;
-      for (const sig of (data.signals || [])) {
-        lastKioskSignalId = sig.id;
-        const payload = JSON.parse(sig.data);
-        if (sig.type === 'offer') {
-          // Ignore stale offers while a live connection already exists
-          if (rtcPeer && rtcPeer.connectionState === 'connected') continue;
-          gotOffer = true;
-          waitingForOffer = false;
-          const peer = createPeer();
-          setStatus('connecting');
-          await peer.setRemoteDescription(new RTCSessionDescription(payload));
-          const answer = await peer.createAnswer();
-          await peer.setLocalDescription(answer);
-          await postSignal('viewer', 'answer', { sdp: answer.sdp, type: answer.type });
-        } else if (sig.type === 'ice-kiosk' && rtcPeer && rtcPeer.remoteDescription) {
-          try { await rtcPeer.addIceCandidate(new RTCIceCandidate(payload)); } catch(e){}
+    const APP_URL = <?= json_encode($u) ?>;
+    const SIGNAL_URL = APP_URL + '/api/monitor/signal.php';
+    const RTC_CONFIG = {
+      iceServers: [{
+          urls: 'stun:stun.l.google.com:19302'
+        },
+        {
+          urls: 'stun:stun1.l.google.com:19302'
         }
+      ]
+    };
+
+    let rtcPeer = null,
+      lastKioskSignalId = 0,
+      pollTimer = null,
+      waitingForOffer = true;
+
+    function createPeer() {
+      if (rtcPeer) {
+        try {
+          rtcPeer.close();
+        } catch (e) {}
+        rtcPeer = null;
       }
-      // No offer available (it likely expired in the DB) — ask the kiosk for a fresh one.
-      // The kiosk throttles re-offers to at most one per 15s.
-      if (waitingForOffer && !gotOffer) {
-        await postSignal('viewer', 'request-offer', {});
+      rtcPeer = new RTCPeerConnection(RTC_CONFIG);
+      rtcPeer.addTransceiver('video', {
+        direction: 'recvonly'
+      });
+      rtcPeer.ontrack = (e) => {
+        const video = document.getElementById('monitor-video');
+        video.srcObject = e.streams[0] || new MediaStream([e.track]);
+      };
+      rtcPeer.onicecandidate = async (e) => {
+        if (e.candidate) await postSignal('viewer', 'ice-viewer', e.candidate.toJSON());
+      };
+      rtcPeer.onconnectionstatechange = () => {
+        const s = rtcPeer.connectionState;
+        document.getElementById('rtc-state').textContent = s;
+        if (s === 'connected') setStatus('connected');
+        if (s === 'disconnected' || s === 'failed') {
+          setStatus('disconnected');
+          waitingForOffer = true;
+          setTimeout(startViewer, 5000);
+        }
+      };
+      rtcPeer.oniceconnectionstatechange = () => {
+        document.getElementById('ice-state').textContent = rtcPeer.iceConnectionState;
+      };
+      return rtcPeer;
+    }
+
+    // ── Status helpers ──────────────────────────────────────────────────────────
+    function setStatus(state) {
+      const dot = document.getElementById('status-dot');
+      const text = document.getElementById('status-text');
+      const badge = document.getElementById('conn-status');
+      const states = {
+        waiting: {
+          dot: 'red',
+          text: 'Waiting for kiosk…',
+          badge: 'bg-secondary'
+        },
+        connecting: {
+          dot: 'yellow',
+          text: 'Connecting…',
+          badge: 'bg-warning text-dark'
+        },
+        connected: {
+          dot: 'green',
+          text: 'Live',
+          badge: 'bg-success'
+        },
+        disconnected: {
+          dot: 'red',
+          text: 'Disconnected',
+          badge: 'bg-danger'
+        },
+      };
+      const s = states[state] || states.waiting;
+      dot.className = 'status-dot ' + s.dot;
+      text.textContent = s.text;
+      badge.className = 'badge fs-6 ' + s.badge;
+      document.getElementById('feed-note').textContent =
+        state === 'connected' ? 'Live feed active' : 'Waiting for kiosk camera…';
+    }
+
+    async function startViewer() {
+      setStatus('waiting');
+      if (pollTimer) clearInterval(pollTimer);
+      pollTimer = setInterval(pollKioskSignals, 5000);
+      await pollKioskSignals();
+    }
+
+    async function pollKioskSignals() {
+      try {
+        const res = await fetch(`${SIGNAL_URL}?role=viewer&since=${lastKioskSignalId}`);
+        const data = await res.json();
+        document.getElementById('last-signal').textContent = new Date().toLocaleTimeString();
+        let gotOffer = false;
+        for (const sig of (data.signals || [])) {
+          lastKioskSignalId = sig.id;
+          const payload = JSON.parse(sig.data);
+          if (sig.type === 'offer') {
+            // Ignore stale offers while a live connection already exists
+            if (rtcPeer && rtcPeer.connectionState === 'connected') continue;
+            gotOffer = true;
+            waitingForOffer = false;
+            const peer = createPeer();
+            setStatus('connecting');
+            await peer.setRemoteDescription(new RTCSessionDescription(payload));
+            const answer = await peer.createAnswer();
+            await peer.setLocalDescription(answer);
+            await postSignal('viewer', 'answer', {
+              sdp: answer.sdp,
+              type: answer.type
+            });
+          } else if (sig.type === 'ice-kiosk' && rtcPeer && rtcPeer.remoteDescription) {
+            try {
+              await rtcPeer.addIceCandidate(new RTCIceCandidate(payload));
+            } catch (e) {}
+          }
+        }
+        // No offer available (it likely expired in the DB) — ask the kiosk for a fresh one.
+        // The kiosk throttles re-offers to at most one per 15s.
+        if (waitingForOffer && !gotOffer) {
+          await postSignal('viewer', 'request-offer', {});
+        }
+      } catch (e) {}
+    }
+
+    async function postSignal(role, type, data) {
+      try {
+        await fetch(SIGNAL_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            role,
+            type,
+            data
+          })
+        });
+      } catch (e) {}
+    }
+
+    document.getElementById('btn-reconnect').addEventListener('click', async () => {
+      // Ask the kiosk for a FRESH offer instead of replaying stale signals
+      // (replaying old offers caused ICE to connect but media to never flow)
+      waitingForOffer = true;
+      if (rtcPeer) {
+        try {
+          rtcPeer.close();
+        } catch (e) {}
+        rtcPeer = null;
       }
-    } catch(e) {}
-  }
+      setStatus('waiting');
+      await postSignal('viewer', 'request-offer', {});
+    });
 
-  async function postSignal(role, type, data) {
-    try {
-      await fetch(SIGNAL_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ role, type, data })
-      });
-    } catch(e) {}
-  }
+    // ── Collapsible message panel ───────────────────────────────────────────────
+    document.getElementById('msg-toggle').addEventListener('click', () => {
+      const body = document.getElementById('msg-body');
+      const chevron = document.getElementById('msg-chevron');
+      const open = !body.classList.contains('msg-collapsed');
+      body.classList.toggle('msg-collapsed', open);
+      chevron.textContent = open ? '▼' : '▲';
+    });
 
-  document.getElementById('btn-reconnect').addEventListener('click', async () => {
-    // Ask the kiosk for a FRESH offer instead of replaying stale signals
-    // (replaying old offers caused ICE to connect but media to never flow)
-    waitingForOffer = true;
-    if (rtcPeer) { try { rtcPeer.close(); } catch(e){} rtcPeer = null; }
-    setStatus('waiting');
-    await postSignal('viewer', 'request-offer', {});
-  });
+    // ── Send message ────────────────────────────────────────────────────────────
+    document.getElementById('btn-send-msg').addEventListener('click', async () => {
+      const msg = document.getElementById('msg-text').value.trim();
+      const type = document.getElementById('msg-type').value;
+      if (!msg) {
+        showToast('Please enter a message.', '#dc3545');
+        return;
+      }
+      const btn = document.getElementById('btn-send-msg');
+      btn.disabled = true;
+      btn.textContent = 'Sending…';
+      try {
+        const res = await fetch(APP_URL + '/api/messages/send.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            message: msg,
+            type
+          })
+        });
+        const data = await res.json();
+        showToast(data.success ? '✅ Sent!' : '❌ ' + (data.message || 'Failed'), data.success ? '#198754' : '#dc3545');
+        if (data.success) document.getElementById('msg-text').value = '';
+      } catch (e) {
+        showToast('❌ Network error', '#dc3545');
+      }
+      btn.disabled = false;
+      btn.textContent = 'Send to Kiosk';
+    });
 
-  // ── Collapsible message panel ───────────────────────────────────────────────
-  document.getElementById('msg-toggle').addEventListener('click', () => {
-    const body    = document.getElementById('msg-body');
-    const chevron = document.getElementById('msg-chevron');
-    const open    = !body.classList.contains('msg-collapsed');
-    body.classList.toggle('msg-collapsed', open);
-    chevron.textContent = open ? '▼' : '▲';
-  });
+    function showToast(text, bg) {
+      const el = document.getElementById('msg-toast');
+      el.style.background = bg;
+      document.getElementById('msg-toast-body').textContent = text;
+      el.style.display = 'block';
+      el.style.opacity = '1';
+      setTimeout(() => {
+        el.style.opacity = '0';
+        setTimeout(() => {
+          el.style.display = 'none';
+        }, 300);
+      }, 3000);
+    }
 
-  // ── Send message ────────────────────────────────────────────────────────────
-  document.getElementById('btn-send-msg').addEventListener('click', async () => {
-    const msg  = document.getElementById('msg-text').value.trim();
-    const type = document.getElementById('msg-type').value;
-    if (!msg) { showToast('Please enter a message.', '#dc3545'); return; }
-    const btn = document.getElementById('btn-send-msg');
-    btn.disabled = true; btn.textContent = 'Sending…';
-    try {
-      const res  = await fetch(APP_URL + '/api/messages/send.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: msg, type })
-      });
-      const data = await res.json();
-      showToast(data.success ? '✅ Sent!' : '❌ ' + (data.message || 'Failed'), data.success ? '#198754' : '#dc3545');
-      if (data.success) document.getElementById('msg-text').value = '';
-    } catch(e) { showToast('❌ Network error', '#dc3545'); }
-    btn.disabled = false; btn.textContent = 'Send to Kiosk';
-  });
-
-  function showToast(text, bg) {
-    const el = document.getElementById('msg-toast');
-    el.style.background = bg;
-    document.getElementById('msg-toast-body').textContent = text;
-    el.style.display = 'block'; el.style.opacity = '1';
-    setTimeout(() => { el.style.opacity='0'; setTimeout(()=>{ el.style.display='none'; }, 300); }, 3000);
-  }
-
-  // Start on load
-  startViewer();
+    // Start on load
+    startViewer();
   </script>
 </body>
+
 </html>

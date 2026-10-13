@@ -3,24 +3,29 @@
  * Database Configuration & Connection
  * Don Marcelo C. Marty Elementary School — Attendance Tracking System
  */
+require_once __DIR__ . '/runtime.php';
 
 // ── App base URL (no trailing slash) ─────────────────────────────────────────
 // Detects http vs https and host automatically. Works on localhost and live domains.
 if (!defined('APP_URL')) {
-    $scheme   = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-    $host     = $_SERVER['HTTP_HOST'] ?? 'localhost';
-    // Walk up from this file (config/) to find the app root relative to docroot
-    $docRoot  = str_replace('\\', '/', realpath($_SERVER['DOCUMENT_ROOT'] ?? 'C:/xampp/htdocs'));
-    $appRoot  = str_replace('\\', '/', realpath(__DIR__ . '/..'));
-    $subPath  = str_replace($docRoot, '', $appRoot);
-    define('APP_URL', $scheme . '://' . $host . $subPath);
+    $configuredUrl = app_config('APP_URL');
+    if (is_string($configuredUrl) && trim($configuredUrl) !== '') {
+        define('APP_URL', rtrim(trim($configuredUrl), '/'));
+    } else {
+        $scheme  = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        $host    = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        $docRoot = str_replace('\\', '/', realpath($_SERVER['DOCUMENT_ROOT'] ?? 'C:/xampp/htdocs'));
+        $appRoot = str_replace('\\', '/', realpath(__DIR__ . '/..'));
+        $subPath = str_replace($docRoot, '', $appRoot);
+        define('APP_URL', $scheme . '://' . $host . $subPath);
+    }
 }
 
 // ── Database ──────────────────────────────────────────────────────────────────
-define('DB_HOST',    'localhost');
-define('DB_NAME',    'dmcmes');
-define('DB_USER',    'root');
-define('DB_PASS',    '');
+define('DB_HOST',    app_config('DB_HOST', 'localhost'));
+define('DB_NAME',    app_config('DB_NAME', 'dmcmes'));
+define('DB_USER',    app_config('DB_USER', 'root'));
+define('DB_PASS',    app_config('DB_PASS', ''));
 define('DB_CHARSET', 'utf8mb4');
 
 function getDB(): PDO {
@@ -52,6 +57,15 @@ function getDB(): PDO {
               created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
               INDEX idx_created (created_at),
               FOREIGN KEY (teacher_id) REFERENCES users(id) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+            $pdo->exec("CREATE TABLE IF NOT EXISTS password_reset_tokens (
+              token_hash CHAR(64) NOT NULL PRIMARY KEY,
+              user_id INT UNSIGNED NOT NULL,
+              expires_at DATETIME NOT NULL,
+              created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+              INDEX idx_password_reset_user (user_id),
+              INDEX idx_password_reset_expiry (expires_at),
+              FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
         } catch (PDOException $e) {
             error_log('Database connection failed: ' . $e->getMessage());

@@ -240,6 +240,9 @@ $base       = './';
             <div class="card h-100">
               <div class="card-header fw-semibold">Quick Actions</div>
               <div class="card-body d-flex flex-column gap-2">
+                <a href="students/enroll.php" class="btn btn-primary">
+                  Enroll Student
+                </a>
                 <a href="kiosk.php" class="btn btn-primary">
                   Open Student Kiosk
                 </a>

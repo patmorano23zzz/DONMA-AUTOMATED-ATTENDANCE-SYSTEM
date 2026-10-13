@@ -16,3 +16,7 @@ Thumbs.db
 # PHP env / secrets
 *.env
 settings.json
+
+# Composer-installed dependencies
+/vendor/
+/config/deployment.php

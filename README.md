@@ -42,7 +42,7 @@ If your account is not yet active, the administrator may need to approve it firs
 
 ### For students
 
-Students usually do not log in to the main system. Instead, they use the student registration and kiosk attendance process.
+Students do not log in to the main system. Staff enroll students, who then use the kiosk for attendance.
 
 ## 4. The main screen
 
@@ -85,12 +85,7 @@ Teachers can:
 
 ### Student access
 
-Students can:
-
-- register in the system
-- create a password
-- complete face capture
-- use the kiosk for attendance
+Students use the kiosk for attendance after staff enroll them in the system.
 
 ## 6. How teachers use the system
 
@@ -151,30 +146,7 @@ The administrator can open the reports page to see:
 - class attendance summaries
 - daily trends
 
-## 8. How students register
-
-Students register before using the attendance kiosk.
-
-### Registration steps
-
-1. Open the student registration page.
-2. Enter the student LRN.
-3. Confirm the student record.
-4. Complete the face capture step.
-5. Create a password.
-6. Accept the terms and conditions.
-7. Finish the registration.
-
-After successful registration, the student can use the kiosk for attendance.
-
-### Important notes
-
-- Make sure the LRN is correct.
-- Keep the face image clear during capture.
-- Use a password that is easy to remember but not too simple.
-- Ask the school office for help if the student record cannot be found.
-
-## 9. How the kiosk works
+## 8. How the kiosk works
 
 The student kiosk is used for checking in and out quickly.
 
@@ -197,7 +169,7 @@ The system may show:
 
 The result depends on the attendance rules and school schedule.
 
-## 10. Attendance records
+## 9. Attendance records
 
 The system keeps a record of each attendance entry.
 
@@ -212,7 +184,7 @@ These records may include:
 
 Teachers and administrators can review these records from the dashboard or attendance pages.
 
-## 11. Reports
+## 10. Reports
 
 Reports help the school review attendance trends.
 
@@ -234,7 +206,7 @@ Admin reports show:
 - student attendance summaries
 - class-based reports
 
-## 12. Sending messages to the kiosk
+## 11. Sending messages to the kiosk
 
 Teachers can send messages to the kiosk.
 
@@ -247,7 +219,7 @@ Examples of messages:
 
 This helps students receive important information during attendance time.
 
-## 13. Account and password help
+## 12. Account and password help
 
 ### If you forget your password
 
@@ -268,7 +240,7 @@ If this happens:
 - contact the administrator
 - ask the school office to check your account status
 
-## 14. Common issues and solutions
+## 13. Common issues and solutions
 
 ### I cannot log in
 
@@ -307,7 +279,7 @@ Try:
 - closing extra browser tabs
 - logging out and logging back in
 
-## 15. Best practices
+## 14. Best practices
 
 - Log out after using the system on a shared computer.
 - Use your assigned account only.
@@ -315,7 +287,7 @@ Try:
 - Check attendance regularly.
 - Report any problems to the school office immediately.
 
-## 16. Quick start guide
+## 15. Quick start guide
 
 ### For teachers
 
@@ -335,12 +307,9 @@ Try:
 
 ### For students
 
-1. Register your account.
-2. Complete face capture.
-3. Create a password.
-4. Use the kiosk for attendance.
+1. Use the attendance kiosk as instructed by school staff.
 
-## 17. Support
+## 16. Support
 
 If you have problems with the system, contact:
 
@@ -349,6 +318,38 @@ If you have problems with the system, contact:
 - the teacher in charge of the attendance system
 
 The school office can help with account access, approval, and attendance questions.
+
+## 17. Technical specifications
+
+### System information
+
+| Item | Details |
+|---|---|
+| Product name | DONMA Attendance Tracking System (DONMA ATS) |
+| Version | Not specified in the project |
+| Type | Server-rendered web application |
+| Platform | Web browser; Apache/XAMPP for local hosting, or a PHP-compatible web host |
+| Backend | PHP 8.1 or newer |
+| Database | MySQL-compatible database; PDO MySQL, InnoDB, `utf8mb4` |
+| Frontend | HTML, CSS, JavaScript; locally bundled CoreUI and Chart.js 4.5.1 |
+| Institution | Don Marcelo C. Marty Elementary School |
+| Main functions | Staff and student management, attendance, reports, kiosk QR scanning, camera capture, live monitoring, and kiosk messages |
+
+### System requirements
+
+| Component | Requirements |
+|---|---|
+| Browser | Current Chrome, Edge, Firefox, or Safari; camera access is needed for kiosk camera features |
+| Device | Computer, tablet, or smartphone with a camera for kiosk capture and scanning |
+| Internet/network | Required to access a hosted system and its database; local XAMPP use can run on the same computer or school network |
+| Web server | Apache or another server that supports PHP 8.1+ |
+| PHP extensions | PDO and PDO MySQL (`pdo_mysql`) |
+| Database server | MySQL-compatible server with InnoDB support |
+| PHP packages | Composer dependencies, including PHPMailer 6.9; run `composer install` |
+| Camera security | HTTPS on deployed sites; `http://localhost` is supported for local development |
+| Configuration | Set database credentials and application URL through environment variables or private `config/deployment.php`; see `config/deployment.example.php` |
+| Storage | Writable application storage for captured attendance images and runtime files |
+| Database setup | Import or migrate with the SQL files in the `config/` directory |
 
 ## 18. Final reminder
 

@@ -101,7 +101,6 @@ $base       = './../';
               title="Print QR codes for all listed students">
               🖨 Print All QR Codes
             </button>
-            <a href="<?= $u ?>/students/register.php" class="btn btn-primary btn-sm">+ Register Student</a>
           </div>
         </div>
 
